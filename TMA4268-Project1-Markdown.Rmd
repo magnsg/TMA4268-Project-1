@@ -6,3 +6,52 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+
+## Problem 2
+
+### a)
+
+One error made is excluding sex because of a low p-value, the p-value is the probability to observe a result equal or more extreme than the one we did, given that the null hypothesis $H_0: \beta = 0$, so a lower p-value means the result is more statistically significant.
+
+Another error made is deciding whether to reject the null hypothesis that the species coefficient overall is actually zero based on the p-values of the coefficients. Since the null hypothesis in this case is $H_0: \beta_{Chinstrap} = \beta_{Gentoo} = 0$ at the same time. We need to do a F-test.
+
+
+### b)
+
+```{r}
+library(ggplot2)
+library(palmerpenguins) # Contains the data set 'penguins'.
+data(penguins)
+
+Penguins <- subset(penguins, select = -c(island, year))
+Penguins <- na.omit(Penguins)
+
+ggplot(data = Penguins) +
+  geom_point(mapping = aes(x = bill_depth_mm, y = body_mass_g, colour = species))
+
+ggplot(data = Penguins) +
+  geom_histogram(binwidth = 40, mapping = aes(x = body_mass_g)) +
+  facet_wrap(~ sex, nrow = 2)
+
+```
+
+### c)
+
+```{r}
+Penguins <- subset(penguins, select = -c(island, year))
+
+penguin.model <- lm(body_mass_g ~ flipper_length_mm + sex + bill_depth_mm * species,
+                    data = Penguins)
+summary(penguin.model)
+
+anova(penguin.model)
+
+
+
+
+```
+
+
+
+
