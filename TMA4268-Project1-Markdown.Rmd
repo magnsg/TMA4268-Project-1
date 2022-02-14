@@ -52,6 +52,11 @@ anova(penguin.model)
 
 ```
 
+## 3
+
+### a)
+
+test
 
 
 
