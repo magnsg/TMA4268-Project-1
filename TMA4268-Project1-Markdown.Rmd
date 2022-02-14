@@ -16,6 +16,9 @@ One error made is excluding sex because of a low p-value, the p-value is the pro
 
 Another error made is deciding whether to reject the null hypothesis that the species coefficient overall is actually zero based on the p-values of the coefficients. Since the null hypothesis in this case is $H_0: \beta_{Chinstrap} = \beta_{Gentoo} = 0$ at the same time. We need to do a F-test.
 
+A third error made is claiming that chinstrap penguins are the largest since they have the largest coefficient. Having a large coefficient only means that for a given set of parameters a chinstrap penguin is going to be heavier than another type of penguin. And when we include interaction terms which changes the the slopes, a large coefficient only guarantees it is larger for a range of parameters near zero. And by looking at body mass of the penguins in the data set we find that gentoo penguins have the highest mean body mass.
+
+
 
 ### b)
 
@@ -28,17 +31,19 @@ Penguins <- subset(penguins, select = -c(island, year))
 Penguins <- na.omit(Penguins)
 
 ggplot(data = Penguins) +
-  geom_point(mapping = aes(x = bill_depth_mm, y = body_mass_g, colour = species))
+  geom_histogram(binwidth = 40, mapping = aes(x = body_mass_g)) +
+  facet_wrap(~ sex, nrow = 2)
 
 ggplot(data = Penguins) +
   geom_histogram(binwidth = 40, mapping = aes(x = body_mass_g)) +
-  facet_wrap(~ sex, nrow = 2)
+  facet_wrap(~ species, nrow = 3)
 
 ```
 
 ### c)
 
 ```{r}
+library(ggfortify)
 Penguins <- subset(penguins, select = -c(island, year))
 
 penguin.model <- lm(body_mass_g ~ flipper_length_mm + sex + bill_depth_mm * species,
@@ -48,7 +53,7 @@ summary(penguin.model)
 anova(penguin.model)
 
 
-
+autoplot(penguin.model, smooth.colour = NA)
 
 ```
 
