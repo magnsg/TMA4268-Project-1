@@ -7,6 +7,20 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Libraries used throughout the exercise
+```{r}
+library(ggplot2)
+library(palmerpenguins) # Contains the data set 'penguins'.
+library(ggfortify)
+library(tidyverse)
+library(GGally)
+library(MASS)
+library(class)
+library(base)
+
+```
+
+
 
 ## Problem 2
 
@@ -23,8 +37,7 @@ A third error made is claiming that chinstrap penguins are the largest since the
 ### b)
 
 ```{r}
-library(ggplot2)
-library(palmerpenguins) # Contains the data set 'penguins'.
+
 data(penguins)
 
 Penguins <- subset(penguins, select = -c(island, year))
@@ -43,7 +56,7 @@ ggplot(data = Penguins) +
 ### c)
 
 ```{r}
-library(ggfortify)
+
 Penguins <- subset(penguins, select = -c(island, year))
 
 penguin.model <- lm(body_mass_g ~ flipper_length_mm + sex + bill_depth_mm * species,
@@ -57,11 +70,238 @@ autoplot(penguin.model, smooth.colour = NA)
 
 ```
 
-## 3
+## Problem 3. 
+
+Now, the main idea is to classify the species of the penguins for a given body mass and flipper length. The dataset contains 3 type of penguin species, yet, classifying 3 penguin species is not straightforward. So, for simplicity, we define our goal to classify a penguin belonging to the species - Adelie, or not Adelie. This will give us two-class classification problem instead of three. 
+
+Since, we will use only three parameters from the dataset, it is wise to create a small dataset, and work with it. First, the variables should be converted to numeric (because knn function cannot handle the int class, and generates errors) and removes any missing observsations. 
+
+```{r}
+penguins$adelie <- ifelse(penguins$species == "Adelie", 1, 0)
+
+# Select only relevant variables and remove all rows with missing values in body
+# mass, flipper length, sex or species.
+Penguins_reduced <- penguins %>% dplyr::select(body_mass_g, flipper_length_mm,
+                    adelie) %>%  mutate(body_mass_g = as.numeric(body_mass_g),
+                    flipper_length_mm = as.numeric(flipper_length_mm)) %>% drop_na()
+
+```
+Now, we need two datasets: the one to train the model, then to test the model. It is common to divide 70% of dataset as a training dataset, and the rest will be a test dataset. 
+
+```{r}
+set.seed(4268)
+
+# 70% of the sample size for training set
+training_set_size <- floor(0.7 * nrow(Penguins_reduced))
+train_ind <- sample(seq_len(nrow(Penguins_reduced)), size = training_set_size)
+train <- Penguins_reduced[train_ind, ]
+test <- Penguins_reduced[-train_ind, ]
+```
 
 ### a)
 
-test
+#### i) Logistic regression
 
+```{r}
+log_reg = glm(adelie ~ body_mass_g + flipper_length_mm, data = train, family = 
+                "binomial")
+
+summary(log_reg)$coef
+```
+
+Here, we train the model using train dataset, and the result is available above. 
+
+```{r}
+prob_test_lr <- predict(log_reg, newdata = test, type = "response")
+
+pred_test_lr <- ifelse(prob_test_lr > 0.5, 1, 0)
+
+```
+
+predict() gives the probabilities of the species = Adelie (class = 1). Then, we apply a cutoff value of 0.5 to those probabilities, to get predicted classes.
+
+
+```{r}
+
+adelie_lr_df = bind_rows(mutate(test, pred_test_lr))
+adelie_lr_df$pred_test_lr = as.factor(adelie_lr_df$pred_test_lr)
+
+gg_p = ggplot(test, aes(x=flipper_length_mm, y=body_mass_g, color=adelie)) + 
+      geom_point(aes(x = body_mass_g, y=flipper_length_mm, colour=pred_test_lr), 
+      data=adelie_lr_df, size=2) + xlab("Flipper Length of a penguin (mm)") + 
+      ylab("Body Mass of a penguin (g)") + 
+      ggtitle("The classification of species using logistic regression") + theme_bw()       + theme(plot.title = element_text(hjust = 0.5)) 
+gg_p
+```
+
+
+Then, we use test dataset for testing the model. The plot illustrates the testing result.
+
+#### ii) Quadratic Discriminant Analysis
+
+We do the same for classification using Quadratic Discriminant Analysis
+
+```{r}
+qda_reg = qda(adelie ~ body_mass_g + flipper_length_mm, data = train)
+
+prob_test_qda <- predict(qda_reg, newdata = test, type = "response")$posterior
+pred_test_qda <- predict(qda_reg, newdata = test, type = "response")$class
+
+```
+
+Because QDA identifies the probabilites of having species = Adelie (class = 1), and having species = not Adelie (class = 0), predict() function will give both probabilites and already cut-off value (0.5) applied predictions. So, $\$$posteriors will give the probabilities, $\$$class will give 0.5 cut-off value applied corresponding classes. 
+
+```{r}
+adelie_qda_df = bind_rows(mutate(test, pred_test_qda))
+adelie_qda_df$pred_test_qda = as.factor(adelie_qda_df$pred_test_qda)
+
+qda_plot = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm, color=adelie)) +
+          geom_point(aes(x = body_mass_g, y=flipper_length_mm, colour=pred_test_qda), 
+          data=adelie_qda_df, size=2) + xlab("Flipper Length of a penguin (mm)") + 
+          ylab("Body Mass of a penguin (g)") +
+          ggtitle("The classification of species using Quadratic Discriminat Analysis")         + theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+
+qda_plot
+```
+
+Again, this plot illustrates the testing result.
+
+#### iii) K-nearest neighbours
+```{r}
+knnMod = knn(train = train, test = test, cl = train$adelie, k = 25, prob = T)
+
+knn_r <- data.frame(data.matrix(knnMod), attributes(knnMod)$prob)
+```
+
+After having the model, we put the result in matrix form for better usage.
+
+```{r}
+probKNN = ifelse(knnMod == 0, 1 - attributes(knnMod)$prob, attributes(knnMod)$prob)
+```
+
+This is the way to get the probabilities of species = Adelie (class = 1)
+
+#### iv) Sensitivity $\&$ specificity
+
+For Logistic regression
+
+```{r}
+predictions_log_reg = data.frame(prob_test_lr, pred_test_lr, test[, "adelie"])
+colnames(predictions_log_reg) = c("Estim. prob. of Y=1", "Predicted class",
+                             "True class")
+head(predictions_log_reg)
+
+conf_mat_log_r = table(predicted = predictions_log_reg["Predicted class"][,1], true = 
+        predictions_log_reg["True class"][,1] )
+
+print("The confusion matrix is:") 
+conf_mat_log_r
+
+test_error_rate_lr = (conf_mat_log_r[1, 2] + conf_mat_log_r[2, 1])/sum(conf_mat_log_r)
+print(paste( "The test error for Logistic regression -", signif(test_error_rate_lr, digits = 4))) 
+
+sensitivity_lr = conf_mat_log_r[2, 2]/(conf_mat_log_r[1, 2]+conf_mat_log_r[2, 2])
+specificity_lr = conf_mat_log_r[1, 1]/(conf_mat_log_r[2, 1]+conf_mat_log_r[1, 1])
+
+print(paste( "The sensitivity - ", signif(sensitivity_lr, digits=4))) 
+print(paste( "The specificity - ", signif(specificity_lr, digits=4))) 
+
+```
+
+For Quadratic Discriminant Analysis
+
+```{r}
+predictions_qda = data.frame(pred_test_qda, test[, "adelie"])
+colnames(predictions_qda) = c("Predicted class","True class")
+head(predictions_qda)
+
+conf_mat_qda = table(predicted = predictions_qda["Predicted class"][,1], true = 
+        predictions_qda["True class"][,1] )
+print("The confusion matrix is:") 
+conf_mat_qda
+
+test_error_rate_qda = (conf_mat_qda[1, 2] + conf_mat_qda[2, 1])/sum(conf_mat_qda)
+print(paste( "The test error for Quadratic Discriminant Analysis -", signif(test_error_rate_qda, digits = 4))) 
+
+sensitivity_qda = conf_mat_qda[2, 2]/(conf_mat_qda[1, 2]+conf_mat_qda[2, 2])
+specificity_qda = conf_mat_qda[1, 1]/(conf_mat_qda[2, 1]+conf_mat_qda[1, 1])
+
+print(paste( "The sensitivity - ", signif(sensitivity_qda, digits=4))) 
+print(paste( "The specificity - ", signif(specificity_qda, digits=4))) 
+
+```
+
+For K-nearest neighbours
+
+```{r}
+predictions_knn = data.frame(knn_r[, 2], knn_r[, 1], test[, "adelie"])
+colnames(predictions_knn) = c("Estim. prob. of Y=1","Predicted class","True class")
+head(predictions_knn)
+
+conf_mat_knn = table(predicted = predictions_knn["Predicted class"][,1], true = 
+        predictions_knn["True class"][,1] )
+print("The confusion matrix is:") 
+conf_mat_knn
+
+test_error_rate_knn = (conf_mat_knn[1, 2] + conf_mat_knn[2, 1])/sum(conf_mat_knn)
+print(paste( "The test error for K-nearest Neighbours -", signif(test_error_rate_knn, digits = 4))) 
+
+sensitivity_knn = conf_mat_knn[2, 2]/(conf_mat_knn[1, 2]+conf_mat_knn[2, 2])
+specificity_knn = conf_mat_knn[1, 1]/(conf_mat_knn[2, 1]+conf_mat_knn[1, 1])
+
+print(paste( "The sensitivity - ", signif(sensitivity_knn, digits=4))) 
+print(paste( "The specificity - ", signif(specificity_knn, digits=4)))
+```
+### B. ROC $\&$ AUC
+
+#### i)
+```{r}
+lr_roc = roc.curve(test$adelie, prob_test_lr, col = "blue", lwd=3, 
+                   xlab = "1 - specificity", ylab = "sensitivity")
+
+#par(new=T)
+qda_roc = roc.curve(test$adelie, prob_test_qda[,2], col = "red", lwd=3, add = T)
+
+probKNN = ifelse(knnMod == 0, 1 - attributes(knnMod)$prob, attributes(knnMod)$prob)
+
+#par(new=T)
+knn_roc = roc.curve(test$adelie, probKNN, col = "green", lwd=3, add = T)
+
+legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant \nAnalysis", "K-nearest neighbours"), cex=0.8, lwd = 3, 
+       col = c("blue", "red", "green"))
+
+```
+Areas Under Curves: 
+
+```{r}
+
+print(paste( "AUC of Logistic Regression ", signif(lr_roc$auc, digits = 4)))
+print(paste( "AUC of Quadradic Discriminant Analysis ", signif(qda_roc$auc, digits = 4)))
+print(paste( "AUC of K-nearest neighbours ", signif(knn_roc$auc, digits = 4)))
+```
+### C. 
+
+$odds = \frac{p_i}{1-p_i} = \frac{\text{P}(Y_i=1 \mid X=x)}{\text{P}(Y_i=0 \mid X = x)} = exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)$
+
+$odds\ ratio = \frac{odds[Y_i=1 \mid X=x_1+1000]}{odds[Y_i=1 \mid X=x_1]} = \frac{exp(\beta_0) \cdot exp(\beta_1(x_1+1000)) \cdot exp(\beta_2x_2)}{exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)} = exp(\beta_1*1000)$
+
+We find $\beta_1$ from coefficient table of Logistic regression
+
+$odds\ ratio = $
+```{r}
+summary(log_reg)$coef
+
+```
+
+So, $\beta_1 = 0.000712$
+
+```{r}
+
+print(paste( "The odds will be multiplied by ", signif(exp(coef(log_reg)[2]*1000), digits = 4)))
+
+```
+The answer is III. 
+
+### D.
 
 
