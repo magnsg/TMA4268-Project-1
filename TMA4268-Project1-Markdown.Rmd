@@ -275,12 +275,10 @@ print(paste( "The specificity - ", signif(specificity_knn, digits=4)))
 lr_roc = roc.curve(test$adelie, prob_test_lr, col = "blue", lwd=3, 
                    xlab = "1 - specificity", ylab = "sensitivity")
 
-#par(new=T)
 qda_roc = roc.curve(test$adelie, prob_test_qda[,2], col = "red", lwd=3, add = T)
 
 probKNN = ifelse(knnMod == 0, 1 - attributes(knnMod)$prob, attributes(knnMod)$prob)
 
-#par(new=T)
 knn_roc = roc.curve(test$adelie, probKNN, col = "green", lwd=3, add = T)
 
 legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant \nAnalysis", "K-nearest Neighbors"), cex=0.8, lwd = 3, 
