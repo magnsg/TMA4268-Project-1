@@ -166,7 +166,7 @@ qda_plot
 
 Again, this plot illustrates the testing result.
 
-#### iii) K-nearest neighbours
+#### iii) K-nearest Neighbors
 ```{r}
 knnMod = knn(train = train, test = test, cl = train$adelie, k = 25, prob = T)
 
@@ -177,15 +177,31 @@ After having the model, we put the result in matrix form for better usage.
 
 ```{r}
 probKNN = ifelse(knnMod == 0, 1 - attributes(knnMod)$prob, attributes(knnMod)$prob)
+predKNN = ifelse(probKNN > 0.5, 1, 0)
 ```
 
-This is the way to get the probabilities of species = Adelie (class = 1)
+This is the way to get the probabilities of species = Adelie (class = 1). Then, again we apply 0.5 cut-off value to get the predictions. 
+
+```{r}
+adelie_knn_df = bind_rows(mutate(test, probKNN, predKNN))
+adelie_knn_df$predKNN = as.factor(adelie_knn_df$predKNN)
+
+gg = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm,
+      colour=adelie))+geom_point(aes(x=body_mass_g, y=flipper_length_mm,
+      colour=predKNN), data=adelie_knn_df, size=2) + 
+      xlab("Flipper Length of a penguin (mm)") + ylab("Body Mass of a penguin (g)") +
+      ggtitle("The classification of species using \n K-nearest Neighbors") +
+      theme_bw() + theme(plot.title = element_text(hjust = 0.5)) 
+
+gg
+```
 
 #### iv) Sensitivity $\&$ specificity
 
 For Logistic regression
 
 ```{r}
+
 predictions_log_reg = data.frame(prob_test_lr, pred_test_lr, test[, "adelie"])
 colnames(predictions_log_reg) = c("Estim. prob. of Y=1", "Predicted class",
                              "True class")
@@ -231,7 +247,7 @@ print(paste( "The specificity - ", signif(specificity_qda, digits=4)))
 
 ```
 
-For K-nearest neighbours
+For K-nearest Neighbors
 
 ```{r}
 predictions_knn = data.frame(knn_r[, 2], knn_r[, 1], test[, "adelie"])
@@ -244,7 +260,7 @@ print("The confusion matrix is:")
 conf_mat_knn
 
 test_error_rate_knn = (conf_mat_knn[1, 2] + conf_mat_knn[2, 1])/sum(conf_mat_knn)
-print(paste( "The test error for K-nearest Neighbours -", signif(test_error_rate_knn, digits = 4))) 
+print(paste( "The test error for K-nearest Neighbors -", signif(test_error_rate_knn, digits = 4))) 
 
 sensitivity_knn = conf_mat_knn[2, 2]/(conf_mat_knn[1, 2]+conf_mat_knn[2, 2])
 specificity_knn = conf_mat_knn[1, 1]/(conf_mat_knn[2, 1]+conf_mat_knn[1, 1])
@@ -267,7 +283,7 @@ probKNN = ifelse(knnMod == 0, 1 - attributes(knnMod)$prob, attributes(knnMod)$pr
 #par(new=T)
 knn_roc = roc.curve(test$adelie, probKNN, col = "green", lwd=3, add = T)
 
-legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant \nAnalysis", "K-nearest neighbours"), cex=0.8, lwd = 3, 
+legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant \nAnalysis", "K-nearest Neighbors"), cex=0.8, lwd = 3, 
        col = c("blue", "red", "green"))
 
 ```
@@ -277,8 +293,22 @@ Areas Under Curves:
 
 print(paste( "AUC of Logistic Regression ", signif(lr_roc$auc, digits = 4)))
 print(paste( "AUC of Quadradic Discriminant Analysis ", signif(qda_roc$auc, digits = 4)))
-print(paste( "AUC of K-nearest neighbours ", signif(knn_roc$auc, digits = 4)))
+print(paste( "AUC of K-nearest Neighbors ", signif(knn_roc$auc, digits = 4)))
 ```
+
+#### ii) 
+ 
+ROC curve - Receiver operating characteristics curve displays the relation between False Positive rate and True Positive rate for all possible threshold values (0 to 1). Since True Positive rate is $\frac{True Positives}{All Positives}$, it is expressed as sensitivity, and False Positive rate as 1 - Specificity. If the model is ideal model, the sensitivity = 1, and specificity = 1, so, the curve will be on the top left. While a straight line will represent a model with random guesses on the outcome. 
+
+In order to check the overall performance of the model, AUC (Area Under Curve) values are compared, meaning that if AUC value is high, that means the curve is closer to the ideal situation. 
+
+<h1><center> The comparison of the models we have: Logistic regression, Quadratic Discriminant Analysis, K-nearest Neighbors </center></h1>
+
+When we look at the ROC Curves, we clearly see that the model that performs worse than others is K-nearest Neighbors. This is proved by AUC area. (AUC area of KNN = 0.8417). 
+
+The performance of Logistic regression and Quadratic Discriminant Analysis is almost the same. Yet, there is a slight difference in AUC areas. Based on AUC areas, Logistic regression performs a bit better than Quadratic Discriminant Analysis (AUC area of LogReg = 0.9391, AUC area of QDA = 0.938)
+
+
 ### C. 
 
 $odds = \frac{p_i}{1-p_i} = \frac{\text{P}(Y_i=1 \mid X=x)}{\text{P}(Y_i=0 \mid X = x)} = exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)$
