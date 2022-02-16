@@ -20,6 +20,44 @@ library(base)
 
 ```
 
+## Problem 1
+
+### a)
+
+If we have that $y_0 = f(x_0)+\epsilon$, where $\epsilon$ is a random error independent of $x$ with 0 mean. And $x_0$ is a unseen test observation we find,
+
+$$
+\begin{aligned}
+ E\left[ \left( y_0-\hat f(x_0)\right)^2 \right] &= E\left[ \left( f(x_0) -\hat f(x_0)\right)^2     \right]
+ + E \left[ \epsilon^2 \right] + 2 E\left[ \left( f(x_0)-\hat f(x_0)\right) \cdot \epsilon \right] \\
+ &= E\left[ f(x_0)^2 -2 f(x_0)\hat f(x_0) + \hat f(x_0)^2 \right] + E \left[ \epsilon^2 \right]
+ + 2 E\left[ \left( f(x_0)-\hat f(x_0)\right) \right] \cdot E[\epsilon] \\
+ &= f(x_0)^2 -2 f(x_0) E[\hat f(x_0)] +E[\hat f(x_0)^2] + Var \left[ \epsilon \right] \\
+ &= \left( f(x_0) -E[\hat f(x_0)] \right)^2 + Var[\hat f(x_0)] + Var \left[ \epsilon \right] \\
+ &= \textrm{Bias}^2 + \textrm{Variance} + \textrm{Irreducible error}
+\end{aligned}
+$$
+
+### b)
+The irreducible error is a term that can't be reduced by fitting the data well.
+The variance is a term describing how much uncertainty our statistical model $\hat f$, how much $\hat f$ changes if we change the training data.
+The bias is the expected difference between the true model $f$ and our statistical model $\hat f$.
+
+### c)
+  i) True
+  ii) False
+  iii) True
+  iv) False
+  
+### d)
+
+
+### e)
+  (iii) 0.76
+$$
+\rho_{x_1,x_2} = \frac{\textrm{cov}(x_1,x_2)}{\sigma_{x_1}\sigma_{x_2}} = \frac{33}{\sqrt{50}\sqrt{38}} = 0.76
+$$
+  
 
 
 ## Problem 2
@@ -30,7 +68,7 @@ One error made is excluding sex because of a low p-value, the p-value is the pro
 
 Another error made is deciding whether to reject the null hypothesis that the species coefficient overall is actually zero based on the p-values of the coefficients. Since the null hypothesis in this case is $H_0: \beta_{Chinstrap} = \beta_{Gentoo} = 0$ at the same time. We need to do a F-test.
 
-A third error made is claiming that chinstrap penguins are the largest since they have the largest coefficient. Having a large coefficient only means that for a given set of parameters a chinstrap penguin is going to be heavier than another type of penguin. And when we include interaction terms which changes the the slopes, a large coefficient only guarantees it is larger for a range of parameters near zero. And by looking at body mass of the penguins in the data set we find that gentoo penguins have the highest mean body mass.
+A third error made is claiming that chinstrap penguins are the largest since they have the largest coefficient. Having a large coefficient only means that for a given set of parameters a chinstrap penguin is going to be heavier than another type of penguin. And when we include interaction terms which changes the the slopes, a large coefficient only guarantees it is larger for a range of parameters near zero. And by looking at body mass of the penguins in the data set we find that in fact gentoo penguins have the highest mean body mass.
 
 
 
@@ -274,6 +312,7 @@ print(paste( "The specificity - ", signif(specificity_knn, digits=4)))
 
 #### i)
 ```{r}
+
 lr_roc = roc.curve(test$adelie, prob_test_lr, col = "blue", lwd=3, 
                    xlab = "1 - specificity", ylab = "sensitivity")
 
@@ -367,5 +406,6 @@ data_plot = data +
 
 data_plot
 ```
+
 
 
