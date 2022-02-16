@@ -126,11 +126,12 @@ predict() gives the probabilities of the species = Adelie (class = 1). Then, we 
 adelie_lr_df = bind_rows(mutate(test, pred_test_lr))
 adelie_lr_df$pred_test_lr = as.factor(adelie_lr_df$pred_test_lr)
 
-gg_p = ggplot(test, aes(x=flipper_length_mm, y=body_mass_g, color=adelie)) + 
+gg_p = ggplot(test, aes(x = body_mass_g, y=flipper_length_mm, color=adelie)) + 
       geom_point(aes(x = body_mass_g, y=flipper_length_mm, colour=pred_test_lr), 
       data=adelie_lr_df, size=2) + xlab("Flipper Length of a penguin (mm)") + 
+      labs(color = "Adelie") +
       ylab("Body Mass of a penguin (g)") + 
-      ggtitle("The classification of species using logistic regression") + theme_bw()       + theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle("The classification of species using logistic regression") + theme_bw()       +         theme(plot.title = element_text(hjust = 0.5)) 
 gg_p
 ```
 
@@ -159,6 +160,7 @@ qda_plot = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm, color=adelie)) +
           geom_point(aes(x = body_mass_g, y=flipper_length_mm, colour=pred_test_qda), 
           data=adelie_qda_df, size=2) + xlab("Flipper Length of a penguin (mm)") + 
           ylab("Body Mass of a penguin (g)") +
+          labs(shape = "Adelie", color = "Adelie") +
           ggtitle("The classification of species using Quadratic Discriminat Analysis")         + theme_bw() + theme(plot.title = element_text(hjust = 0.5))
 
 qda_plot
@@ -186,14 +188,14 @@ This is the way to get the probabilities of species = Adelie (class = 1). Then, 
 adelie_knn_df = bind_rows(mutate(test, probKNN, predKNN))
 adelie_knn_df$predKNN = as.factor(adelie_knn_df$predKNN)
 
-gg = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm,
+gg_knn = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm,
       colour=adelie))+geom_point(aes(x=body_mass_g, y=flipper_length_mm,
       colour=predKNN), data=adelie_knn_df, size=2) + 
       xlab("Flipper Length of a penguin (mm)") + ylab("Body Mass of a penguin (g)") +
-      ggtitle("The classification of species using \n K-nearest Neighbors") +
+      labs(shape = "Adelie", color = "Adelie") + ggtitle("The classification of species using \n K-nearest Neighbors") +
       theme_bw() + theme(plot.title = element_text(hjust = 0.5)) 
 
-gg
+gg_knn
 ```
 
 #### iv) Sensitivity $\&$ specificity
@@ -304,7 +306,11 @@ In order to check the overall performance of the model, AUC (Area Under Curve) v
 
 When we look at the ROC Curves, we clearly see that the model that performs worse than others is K-nearest Neighbors. This is proved by AUC area. (AUC area of KNN = 0.8417). 
 
-The performance of Logistic regression and Quadratic Discriminant Analysis is almost the same. Yet, there is a slight difference in AUC areas. Based on AUC areas, Logistic regression performs a bit better than Quadratic Discriminant Analysis (AUC area of LogReg = 0.9391, AUC area of QDA = 0.938)
+The performances of Logistic regression and Quadratic Discriminant Analysis are almost the same. Yet, there is a slight difference in AUC areas. Based on AUC areas, Logistic regression performs a bit better than Quadratic Discriminant Analysis (AUC area of LogReg = 0.9391, AUC area of QDA = 0.938). However, the overall conclusion is Logistic Regression and Quadratic Discriminant Analysis are similarly good models for interpreting the data. 
+
+#### iii) 
+
+If the task is to create an interpretable model, the model that has to be chosen is Logistic Regression. The reason is Logistic Regression outputs a table that contains all the necessary information to analyze the relation between two variable. The features like Intercept, p-value, t-value have key roles in interpretation. 
 
 
 ### C. 
@@ -331,5 +337,35 @@ print(paste( "The odds will be multiplied by ", signif(exp(coef(log_reg)[2]*1000
 The answer is III. 
 
 ### D.
+
+```{r}
+prob_whole_lr <- predict(log_reg, newdata = Penguins_reduced, type = "response")
+
+pred_whole_lr <- ifelse(prob_whole_lr > 0.5, 1, 0)
+
+pred_whole_lr_sh = pred_whole_lr
+  
+whole_lr_df = bind_rows(mutate(Penguins_reduced, pred_whole_lr, pred_whole_lr_sh))
+whole_lr_df$pred_whole_lr = as.factor(whole_lr_df$pred_whole_lr)
+whole_lr_df$pred_whole_lr_sh = as.factor(whole_lr_df$pred_whole_lr_sh)
+Penguins_reduced$adelie = as.factor(Penguins_reduced$adelie) 
+
+
+data = ggplot(Penguins_reduced, aes(x=body_mass_g, y=flipper_length_mm, color=adelie)) + 
+      geom_point(size=1) + theme_bw()
+
+
+data_plot = data +
+            geom_point(aes(x = body_mass_g, y=flipper_length_mm, colour = pred_whole_lr,
+            shape = pred_whole_lr_sh), data=whole_lr_df,
+            size=2.5, alpha = 1/2) + scale_shape_manual(values=c(1, 0))+
+            labs(shape = "Predicted classes", color = "True classes") + 
+            xlab("Flipper Length of a penguin (mm)") + 
+            ylab("Body Mass of a penguin (g)") + 
+            ggtitle("The classification of species (Logistic Regression used)") + 
+            theme_bw() + theme(plot.title = element_text(hjust = 0.5)) 
+
+data_plot
+```
 
 
