@@ -409,4 +409,103 @@ data_plot
 ```
 
 
+### Problem 4
+
+### a) 
+Answers for the questions are as follows:
+(i) True;
+(ii) False;
+(iii) True;
+(iv) False;
+
+### b)
+
+Heart disease (chd) probability for a non-smoking male with systolic blood pressure (sbp) 150 is 0.10096. The R code for the problem solution is provided below:
+
+```{r}
+#Accessing the data
+
+id<-"1chRpybM5cJn4Eow3-_xwDKPKyddL9M2N"
+d.chd<-read.csv(sprintf("https://docs.google.com/uc?id=%s&export=download",id))
+
+#Creating a predicting model
+
+glm_fit = glm(chd~sex+sbp+smoking, data = d.chd, family = binomial)
+
+#Predicting the disease probability
+
+temp_d <- data.frame(sex=1, sbp=150, smoking=0)
+predict(glm_fit,temp_d,type = 'response')
+
+```
+### c) 
+
+The R code generating solution for the first problem can be found below. As one 
+can see most of the prediction values are between 0.05 and 0.15.
+
+```{r}
+#Create function of interest 
+func_interest <- function(used_data){
+  glm_fit = glm(chd~sex+sbp+smoking, data = used_data, family = binomial)
+  predict(glm_fit,data.frame(sex=1, sbp=150, smoking=0),type = 'response')
+}
+
+#Implement bootstrap for 1000 iterations and save the results in A
+B = 1000
+A = replicate(B,0)
+for (i in 1:B){
+  A[i]=func_interest(d.chd[sample(1:nrow(d.chd), 500, replace = T),])
+}
+
+hist(A, main = 'Estimated probability for "chd"', xlab = 'Estimated probability values for "chd"')
+```
+The standard error derived from predictions above equals to 0.00134. 
+
+One can find the R code generated for solving the problem here.
+
+```{r}
+#Calculating standard error
+std_error_func <- function(x) sd(x) / sqrt(length(x))
+Std_error <- std_error_func(A)
+print(Std_error)
+```
+
+The 95 % quantile interval for the bootstrap samples lies between 0.03915905 and 
+0.20153356. One can see how they distributed in the histogram below.
+
+```{r}
+#Deriving quantiles and sorting bootstrap results within them
+q = quantile(A,probs = c(0.025, 0.975))
+
+After_q <-A[A<q[2]]
+After_q <-After_q[After_q>q[1]]
+
+hist(After_q, main = 'Quantile of estimated probability of "chd"', xlab = 'Quatiled estimated probability values of "chd"')
+
+
+```
+
+The expected probability value is 0.1036039. In my opinion the range of plausib-
+le values are from 0.06 to 0.12. The R code for solving this problem is here
+
+```{r}
+#Calculating values probabilities and expected probability value
+
+EP = 0
+for(i in 1:length(After_q)){
+  EP = EP+After_q[i]*((1/950))
+}
+print(EP)
+
+```
+
+### d) 
+
+The answers for the questions in problem d) are as follows. (i) True, (ii) Fal-
+se, (iii) True, (iv) False.  
+
+
+
+
+
 
