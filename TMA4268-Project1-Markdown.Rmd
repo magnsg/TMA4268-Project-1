@@ -408,7 +408,7 @@ data_plot
 ```
 
 
-## 4
+### Problem 4
 
 ### a) 
 Answers for the questions are as follows:
