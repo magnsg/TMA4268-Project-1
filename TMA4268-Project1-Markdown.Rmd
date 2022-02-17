@@ -17,6 +17,7 @@ library(GGally)
 library(MASS)
 library(class)
 library(base)
+library(ROSE)
 
 ```
 
