@@ -51,6 +51,10 @@ The bias is the expected difference between the true model $f$ and our statistic
   
 ### d)
 
+  i) False
+  ii) False
+  iii) True
+  iv) False
 
 ### e)
   (iii) 0.76
