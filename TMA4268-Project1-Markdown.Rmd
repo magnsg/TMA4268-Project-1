@@ -365,7 +365,6 @@ $odds\ ratio = \frac{odds[Y_i=1 \mid X=x_1+1000]}{odds[Y_i=1 \mid X=x_1]} = \fra
 
 We find $\beta_1$ from coefficient table of Logistic regression
 
-$odds\ ratio = $
 ```{r}
 summary(log_reg)$coef
 
@@ -505,8 +504,7 @@ print(EP)
 
 ### d) 
 
-The answers for the questions in problem d) are as follows. (i) True, (ii) Fal-
-se, (iii) True, (iv) False.  
+The answers for the questions in problem d) are as follows. (i) True, (ii) False, (iii) True, (iv) False.  
 
 
 
