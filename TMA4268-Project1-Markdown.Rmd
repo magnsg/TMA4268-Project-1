@@ -8,8 +8,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Libraries used throughout the exercise
-```{r}
+```{r, results = FALSE, message = FALSE}
+# Libraries used throughout the exercise
 library(ggplot2)
 library(palmerpenguins) # Contains the data set 'penguins'.
 library(ggfortify)
@@ -107,9 +107,17 @@ penguin.model <- lm(body_mass_g ~ flipper_length_mm + sex + bill_depth_mm * spec
                     data = Penguins)
 summary(penguin.model)
 
+```
+
+To test the null hypothesis $H_0: \beta_{Chinstrap} = \beta_{Gentoo} = 0$, we do a F-test.
+```{r}
 anova(penguin.model)
+```
+
+We see that the p-value for species is very low, so we do not reject $H_0$
 
 
+```{r}
 autoplot(penguin.model, smooth.colour = NA)
 
 ```
