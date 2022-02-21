@@ -375,9 +375,13 @@ If the task is to create an interpretable model, the model that has to be chosen
 
 ### c) 
 
-$odds = \frac{p_i}{1-p_i} = \frac{\text{P}(Y_i=1 \mid X=x)}{\text{P}(Y_i=0 \mid X = x)} = exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)$
+$$
+odds = \frac{p_i}{1-p_i} = \frac{\text{P}(Y_i=1 \mid X=x)}{\text{P}(Y_i=0 \mid X = x)} = exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)
+$$
 
-$odds\ ratio = \frac{odds[Y_i=1 \mid X=x_1+1000]}{odds[Y_i=1 \mid X=x_1]} = \frac{exp(\beta_0) \cdot exp(\beta_1(x_1+1000)) \cdot exp(\beta_2x_2)}{exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)} = exp(\beta_1*1000)$
+$$
+odds\ ratio = \frac{odds[Y_i=1 \mid X=x_1+1000]}{odds[Y_i=1 \mid X=x_1]} = \frac{exp(\beta_0) \cdot exp(\beta_1(x_1+1000)) \cdot exp(\beta_2x_2)}{exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)} = exp(\beta_1*1000)
+$$
 
 We find $\beta_1$ from coefficient table of Logistic regression
 
@@ -428,7 +432,7 @@ data_plot
 ```
 
 
-## Problem 4
+### Problem 4
 
 ### a) 
 Answers for the questions are as follows:
@@ -439,7 +443,10 @@ Answers for the questions are as follows:
 
 ### b)
 
-Heart disease (chd) probability for a non-smoking male with systolic blood pressure (sbp) 150 is 0.10096. The R code for the problem solution is provided below:
+The given data for the problem was loaded into R firstly. The heart disease (chd) 
+predicting function was created using global linear function and three variables
+sex, systolic blood pressure (sbp) and if a person smokes or not. The data-frame 
+representing a non-smoking male with sbp 150 was insterted into the predicting function.
 
 ```{r}
 #Accessing the data
@@ -457,10 +464,13 @@ temp_d <- data.frame(sex=1, sbp=150, smoking=0)
 predict(glm_fit,temp_d,type = 'response')
 
 ```
+The chd probability for a non-smoking male with sbp 150 equals to 0.10096 according
+to our predicting function.
+
+
 ### c) 
 
-The R code generating solution for the first problem can be found below. As one 
-can see most of the prediction values are between 0.05 and 0.15.
+The function of the interest (which is chd predicting function for the male above) was created for bootstrapping. The bootstrapping was performed on function of the interest by replacing a row in the supplied data by another row in this data 1000 times. Each iteration result was saved in variable "A" and they were plotted as a histogram.   
 
 ```{r}
 #Create function of interest 
@@ -478,9 +488,11 @@ for (i in 1:B){
 
 hist(A, main = 'Estimated probability for "chd"', xlab = 'Estimated probability values for "chd"')
 ```
-The standard error derived from predictions above equals to 0.00134. 
 
-One can find the R code generated for solving the problem here.
+As one can see most of the prediction values are between 0.05 and 0.15.
+
+
+We created the function that takes prediction values above for calculating the standard error. 
 
 ```{r}
 #Calculating standard error
@@ -489,8 +501,11 @@ Std_error <- std_error_func(A)
 print(Std_error)
 ```
 
-The 95 % quantile interval for the bootstrap samples lies between 0.03915905 and 
-0.20153356. One can see how they distributed in the histogram below.
+The standard error derived from predictions above equals to 0.00134. 
+
+
+2.5 % and 97.5 % quantile values of the predictions were defined using "quantile"
+function. The values below and above these quantile values were deleted from the predictions data and plotted as a histogram.
 
 ```{r}
 #Deriving quantiles and sorting bootstrap results within them
@@ -503,9 +518,9 @@ hist(After_q, main = 'Quantile of estimated probability of "chd"', xlab = 'Quati
 
 
 ```
+The remaining 95 % quantile interval for the bootstrap samples lies between 0.03915905 and 
+0.20153356. One can see how they distributed in the histogram above.
 
-The expected probability value is 0.1036039. In my opinion the range of plausib-
-le values are from 0.06 to 0.12. The R code for solving this problem is here
 
 ```{r}
 #Calculating values probabilities and expected probability value
@@ -518,10 +533,13 @@ print(EP)
 
 ```
 
+The expected probability value is 0.1036039. In my opinion the range of plausible values 
+are from 0.06 to 0.12.
+
 ### d) 
 
-The answers for the questions in problem d) are as follows. (i) True, (ii) False, (iii) True, (iv) False.  
-
+The answers for the questions in problem d) are as follows. (i) True, (ii) Fal-
+se, (iii) True, (iv) False.  
 
 
 
