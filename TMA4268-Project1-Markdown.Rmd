@@ -126,7 +126,7 @@ autoplot(penguin.model, smooth.colour = NA)
 
 Now, the main idea is to classify the species of the penguins for a given body mass and flipper length. The dataset contains 3 type of penguin species, yet, classifying 3 penguin species is not straightforward. So, for simplicity, we define our goal to classify a penguin belonging to the species - Adelie, or not Adelie. This will give us two-class classification problem instead of three. 
 
-Since, we will use only three parameters from the dataset, it is wise to create a small dataset, and work with it. First, the variables should be converted to numeric (because knn function cannot handle the int class, and generates errors) and removes any missing observsations. 
+Since, we will use only three parameters from the dataset, it is wise to create a small dataset, and work with it. First, the variables should be converted to numeric (because knn function cannot handle the int class, and generates errors) and removes any missing observations. 
 
 ```{r}
 penguins$adelie <- ifelse(penguins$species == "Adelie", 1, 0)
@@ -213,7 +213,8 @@ qda_plot = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm, color=adelie)) +
           data=adelie_qda_df, size=2) + xlab("Flipper Length of a penguin (mm)") + 
           ylab("Body Mass of a penguin (g)") +
           labs(shape = "Adelie", color = "Adelie") +
-          ggtitle("The classification of species using Quadratic Discriminat Analysis")         + theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+          ggtitle("The classification of species using Quadratic Discriminat Analysis") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5))
 
 qda_plot
 ```
@@ -244,13 +245,15 @@ gg_knn = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm,
       colour=adelie))+geom_point(aes(x=body_mass_g, y=flipper_length_mm,
       colour=predKNN), data=adelie_knn_df, size=2) + 
       xlab("Flipper Length of a penguin (mm)") + ylab("Body Mass of a penguin (g)") +
-      labs(shape = "Adelie", color = "Adelie") + ggtitle("The classification of species using \n K-nearest Neighbors") +
+      labs(shape = "Adelie", color = "Adelie") + 
+      ggtitle("The classification of species using \n K-nearest Neighbors") +
       theme_bw() + theme(plot.title = element_text(hjust = 0.5)) 
 
 gg_knn
 ```
 
 #### iv) Sensitivity $\&$ specificity
+
 
 For Logistic regression
 
@@ -291,7 +294,8 @@ print("The confusion matrix is:")
 conf_mat_qda
 
 test_error_rate_qda = (conf_mat_qda[1, 2] + conf_mat_qda[2, 1])/sum(conf_mat_qda)
-print(paste( "The test error for Quadratic Discriminant Analysis -", signif(test_error_rate_qda, digits = 4))) 
+print(paste( "The test error for Quadratic Discriminant Analysis -",
+             signif(test_error_rate_qda, digits = 4))) 
 
 sensitivity_qda = conf_mat_qda[2, 2]/(conf_mat_qda[1, 2]+conf_mat_qda[2, 2])
 specificity_qda = conf_mat_qda[1, 1]/(conf_mat_qda[2, 1]+conf_mat_qda[1, 1])
@@ -336,7 +340,8 @@ probKNN = ifelse(knnMod == 0, 1 - attributes(knnMod)$prob, attributes(knnMod)$pr
 
 knn_roc = roc.curve(test$adelie, probKNN, col = "green", lwd=3, add = T)
 
-legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant \nAnalysis", "K-nearest Neighbors"), cex=0.8, lwd = 3, 
+legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant
+        \nAnalysis", "K-nearest Neighbors"), cex=0.8, lwd = 3, 
        col = c("blue", "red", "green"))
 
 ```
@@ -412,7 +417,7 @@ data = ggplot(Penguins_reduced, aes(x=body_mass_g, y=flipper_length_mm, color=ad
 data_plot = data +
             geom_point(aes(x = body_mass_g, y=flipper_length_mm, colour = pred_whole_lr,
             shape = pred_whole_lr_sh), data=whole_lr_df,
-            size=2.5, alpha = 1/2) + scale_shape_manual(values=c(1, 0))+
+            size=2.5, alpha = 1/2) + scale_shape_manual(values=c(2, 0))+
             labs(shape = "Predicted classes", color = "True classes") + 
             xlab("Flipper Length of a penguin (mm)") + 
             ylab("Body Mass of a penguin (g)") + 
