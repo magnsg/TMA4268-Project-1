@@ -313,7 +313,7 @@ specificity_knn = conf_mat_knn[1, 1]/(conf_mat_knn[2, 1]+conf_mat_knn[1, 1])
 print(paste( "The sensitivity - ", signif(sensitivity_knn, digits=4))) 
 print(paste( "The specificity - ", signif(specificity_knn, digits=4)))
 ```
-### B. ROC $\&$ AUC
+### b) ROC $\&$ AUC
 
 #### i)
 ```{r}
@@ -357,7 +357,7 @@ The performances of Logistic regression and Quadratic Discriminant Analysis are 
 If the task is to create an interpretable model, the model that has to be chosen is Logistic Regression. The reason is Logistic Regression outputs a table that contains all the necessary information to analyze the relation between two variable. The features like Intercept, p-value, t-value have key roles in interpretation. 
 
 
-### C. 
+### c) 
 
 $odds = \frac{p_i}{1-p_i} = \frac{\text{P}(Y_i=1 \mid X=x)}{\text{P}(Y_i=0 \mid X = x)} = exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)$
 
@@ -379,7 +379,7 @@ print(paste( "The odds will be multiplied by ", signif(exp(coef(log_reg)[2]*1000
 ```
 The answer is III. 
 
-### D.
+### d)
 
 ```{r}
 prob_whole_lr <- predict(log_reg, newdata = Penguins_reduced, type = "response")
