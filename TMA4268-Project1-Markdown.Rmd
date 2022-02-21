@@ -97,6 +97,9 @@ ggplot(data = Penguins) +
 
 ```
 
+By plotting the histograms of the body mass for the different genders and species, we see a significant correlation between sex and body mass. And we also see that gentoo penguins have the largest mean body mass of the species, not chinstrap as concluded in the report.
+
+
 ### c)
 
 ```{r}
@@ -109,18 +112,32 @@ summary(penguin.model)
 
 ```
 
-To test the null hypothesis $H_0: \beta_{Chinstrap} = \beta_{Gentoo} = 0$, we do a F-test.
+We see that the the p-value of the F-test is very small (2.2e-16), so we know almost for certain that at least one coefficient is not zero. Looking at the summary we see that all the coefficients have p-values small enough to be statistically significant, except the coefficients for spesiesGentoo and its interaction term. However these are categorical covariates so the null hypothesis we need to test is different.
+
+
+To test the null hypothesis $H_0: \beta_{Chinstrap} = \beta_{Gentoo} = 0$, we do a F-test. We do the same for the interaction term.
 ```{r}
 anova(penguin.model)
 ```
 
-We see that the p-value for species is very low, so we do not reject $H_0$
+We see that the p-value for species is very low, so we do reject the null hypothesis. We find that the interaction term is also statistically significant however the p-value is not as small.
 
 
+We now now evaluate the fit of the model with some graphical tools.
 ```{r}
-autoplot(penguin.model, smooth.colour = NA)
+autoplot(penguin.model)
 
 ```
+
+Looking at the Tukey-Anscombe diagram we see that the residuals are centered around zero, and that they are not increasing or decreasing. This indicates a good fit since it shows us that the residuals have zero mean and constant variance.
+
+Looking at the QQ-diagram we see that it is very close to a straight line, which indicates that the residuals are normal distributed as we have asumed.
+
+The scale-location diagram is also not increasing or decreasing, indicating a constant variance.
+
+And finally looking at the leverage plot we see that there are not any worrying points or groups of points with very high leverage and residuals compared to the rest of the points, except maybe the point in the top right of the diagram.
+
+From looking at the diagrams we conclude that the fit of the model is good.
 
 ## Problem 3
 
