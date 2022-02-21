@@ -114,7 +114,7 @@ autoplot(penguin.model, smooth.colour = NA)
 
 ```
 
-## Problem 3. 
+## Problem 3
 
 Now, the main idea is to classify the species of the penguins for a given body mass and flipper length. The dataset contains 3 type of penguin species, yet, classifying 3 penguin species is not straightforward. So, for simplicity, we define our goal to classify a penguin belonging to the species - Adelie, or not Adelie. This will give us two-class classification problem instead of three. 
 
@@ -314,7 +314,7 @@ specificity_knn = conf_mat_knn[1, 1]/(conf_mat_knn[2, 1]+conf_mat_knn[1, 1])
 print(paste( "The sensitivity - ", signif(sensitivity_knn, digits=4))) 
 print(paste( "The specificity - ", signif(specificity_knn, digits=4)))
 ```
-### b) ROC $\&$ AUC
+### b) 
 
 #### i)
 ```{r}
@@ -415,7 +415,7 @@ data_plot
 ```
 
 
-### Problem 4
+## Problem 4
 
 ### a) 
 Answers for the questions are as follows:
