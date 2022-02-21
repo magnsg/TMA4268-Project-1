@@ -1,6 +1,7 @@
 ---
 title: "TMA4268 - Project 1"
-output: pdf_document
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -331,6 +332,8 @@ legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant 
        col = c("blue", "red", "green"))
 
 ```
+
+
 Areas Under Curves: 
 
 ```{r}
@@ -342,7 +345,7 @@ print(paste( "AUC of K-nearest Neighbors ", signif(knn_roc$auc, digits = 4)))
 
 #### ii) 
  
-ROC curve - Receiver operating characteristics curve displays the relation between False Positive rate and True Positive rate for all possible threshold values (0 to 1). Since True Positive rate is $\frac{True Positives}{All Positives}$, it is expressed as sensitivity, and False Positive rate as 1 - Specificity. If the model is ideal model, the sensitivity = 1, and specificity = 1, so, the curve will be on the top left. While a straight line will represent a model with random guesses on the outcome. 
+ROC curve - Receiver operating characteristics curve displays the relation between False Positive rate and True Positive rate for all possible threshold values (0 to 1). Since True Positive rate is $\frac{True\ Positives}{All\ Positives}$, it is expressed as sensitivity, and False Positive rate as 1 - Specificity. If the model is ideal model, the sensitivity = 1, and specificity = 1, so, the curve will be on the top left. While a straight line will represent a model with random guesses on the outcome. 
 
 In order to check the overall performance of the model, AUC (Area Under Curve) values are compared, meaning that if AUC value is high, that means the curve is closer to the ideal situation. 
 
