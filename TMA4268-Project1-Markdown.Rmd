@@ -1,14 +1,15 @@
 ---
 title: "TMA4268 - Project 1"
-output: pdf_document
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Libraries used throughout the exercise
-```{r}
+```{r, results = FALSE, message = FALSE}
+# Libraries used throughout the exercise
 library(ggplot2)
 library(palmerpenguins) # Contains the data set 'penguins'.
 library(ggfortify)
@@ -106,18 +107,26 @@ penguin.model <- lm(body_mass_g ~ flipper_length_mm + sex + bill_depth_mm * spec
                     data = Penguins)
 summary(penguin.model)
 
+```
+
+To test the null hypothesis $H_0: \beta_{Chinstrap} = \beta_{Gentoo} = 0$, we do a F-test.
+```{r}
 anova(penguin.model)
+```
+
+We see that the p-value for species is very low, so we do not reject $H_0$
 
 
+```{r}
 autoplot(penguin.model, smooth.colour = NA)
 
 ```
 
-## Problem 3. 
+## Problem 3
 
 Now, the main idea is to classify the species of the penguins for a given body mass and flipper length. The dataset contains 3 type of penguin species, yet, classifying 3 penguin species is not straightforward. So, for simplicity, we define our goal to classify a penguin belonging to the species - Adelie, or not Adelie. This will give us two-class classification problem instead of three. 
 
-Since, we will use only three parameters from the dataset, it is wise to create a small dataset, and work with it. First, the variables should be converted to numeric (because knn function cannot handle the int class, and generates errors) and removes any missing observsations. 
+Since, we will use only three parameters from the dataset, it is wise to create a small dataset, and work with it. First, the variables should be converted to numeric (because knn function cannot handle the int class, and generates errors) and removes any missing observations. 
 
 ```{r}
 penguins$adelie <- ifelse(penguins$species == "Adelie", 1, 0)
@@ -204,7 +213,8 @@ qda_plot = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm, color=adelie)) +
           data=adelie_qda_df, size=2) + xlab("Flipper Length of a penguin (mm)") + 
           ylab("Body Mass of a penguin (g)") +
           labs(shape = "Adelie", color = "Adelie") +
-          ggtitle("The classification of species using Quadratic Discriminat Analysis")         + theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+          ggtitle("The classification of species using Quadratic Discriminat Analysis") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5))
 
 qda_plot
 ```
@@ -235,13 +245,15 @@ gg_knn = ggplot(test, aes(x=body_mass_g, y=flipper_length_mm,
       colour=adelie))+geom_point(aes(x=body_mass_g, y=flipper_length_mm,
       colour=predKNN), data=adelie_knn_df, size=2) + 
       xlab("Flipper Length of a penguin (mm)") + ylab("Body Mass of a penguin (g)") +
-      labs(shape = "Adelie", color = "Adelie") + ggtitle("The classification of species using \n K-nearest Neighbors") +
+      labs(shape = "Adelie", color = "Adelie") + 
+      ggtitle("The classification of species using \n K-nearest Neighbors") +
       theme_bw() + theme(plot.title = element_text(hjust = 0.5)) 
 
 gg_knn
 ```
 
 #### iv) Sensitivity $\&$ specificity
+
 
 For Logistic regression
 
@@ -282,7 +294,8 @@ print("The confusion matrix is:")
 conf_mat_qda
 
 test_error_rate_qda = (conf_mat_qda[1, 2] + conf_mat_qda[2, 1])/sum(conf_mat_qda)
-print(paste( "The test error for Quadratic Discriminant Analysis -", signif(test_error_rate_qda, digits = 4))) 
+print(paste( "The test error for Quadratic Discriminant Analysis -",
+             signif(test_error_rate_qda, digits = 4))) 
 
 sensitivity_qda = conf_mat_qda[2, 2]/(conf_mat_qda[1, 2]+conf_mat_qda[2, 2])
 specificity_qda = conf_mat_qda[1, 1]/(conf_mat_qda[2, 1]+conf_mat_qda[1, 1])
@@ -313,7 +326,7 @@ specificity_knn = conf_mat_knn[1, 1]/(conf_mat_knn[2, 1]+conf_mat_knn[1, 1])
 print(paste( "The sensitivity - ", signif(sensitivity_knn, digits=4))) 
 print(paste( "The specificity - ", signif(specificity_knn, digits=4)))
 ```
-### B. ROC $\&$ AUC
+### b) 
 
 #### i)
 ```{r}
@@ -327,10 +340,13 @@ probKNN = ifelse(knnMod == 0, 1 - attributes(knnMod)$prob, attributes(knnMod)$pr
 
 knn_roc = roc.curve(test$adelie, probKNN, col = "green", lwd=3, add = T)
 
-legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant \nAnalysis", "K-nearest Neighbors"), cex=0.8, lwd = 3, 
+legend("bottomright", legend = c("Logistic Regression", "Quadradic Discriminant
+        \nAnalysis", "K-nearest Neighbors"), cex=0.8, lwd = 3, 
        col = c("blue", "red", "green"))
 
 ```
+
+
 Areas Under Curves: 
 
 ```{r}
@@ -342,7 +358,7 @@ print(paste( "AUC of K-nearest Neighbors ", signif(knn_roc$auc, digits = 4)))
 
 #### ii) 
  
-ROC curve - Receiver operating characteristics curve displays the relation between False Positive rate and True Positive rate for all possible threshold values (0 to 1). Since True Positive rate is $\frac{True Positives}{All Positives}$, it is expressed as sensitivity, and False Positive rate as 1 - Specificity. If the model is ideal model, the sensitivity = 1, and specificity = 1, so, the curve will be on the top left. While a straight line will represent a model with random guesses on the outcome. 
+ROC curve - Receiver operating characteristics curve displays the relation between False Positive rate and True Positive rate for all possible threshold values (0 to 1). Since True Positive rate is $\frac{True\ Positives}{All\ Positives}$, it is expressed as sensitivity, and False Positive rate as 1 - Specificity. If the model is ideal model, the sensitivity = 1, and specificity = 1, so, the curve will be on the top left. While a straight line will represent a model with random guesses on the outcome. 
 
 In order to check the overall performance of the model, AUC (Area Under Curve) values are compared, meaning that if AUC value is high, that means the curve is closer to the ideal situation. 
 
@@ -357,7 +373,7 @@ The performances of Logistic regression and Quadratic Discriminant Analysis are 
 If the task is to create an interpretable model, the model that has to be chosen is Logistic Regression. The reason is Logistic Regression outputs a table that contains all the necessary information to analyze the relation between two variable. The features like Intercept, p-value, t-value have key roles in interpretation. 
 
 
-### C. 
+### c) 
 
 $odds = \frac{p_i}{1-p_i} = \frac{\text{P}(Y_i=1 \mid X=x)}{\text{P}(Y_i=0 \mid X = x)} = exp(\beta_0) \cdot exp(\beta_1x_1) \cdot exp(\beta_2x_2)$
 
@@ -365,7 +381,6 @@ $odds\ ratio = \frac{odds[Y_i=1 \mid X=x_1+1000]}{odds[Y_i=1 \mid X=x_1]} = \fra
 
 We find $\beta_1$ from coefficient table of Logistic regression
 
-$odds\ ratio = $
 ```{r}
 summary(log_reg)$coef
 
@@ -380,7 +395,7 @@ print(paste( "The odds will be multiplied by ", signif(exp(coef(log_reg)[2]*1000
 ```
 The answer is III. 
 
-### D.
+### d)
 
 ```{r}
 prob_whole_lr <- predict(log_reg, newdata = Penguins_reduced, type = "response")
@@ -402,7 +417,7 @@ data = ggplot(Penguins_reduced, aes(x=body_mass_g, y=flipper_length_mm, color=ad
 data_plot = data +
             geom_point(aes(x = body_mass_g, y=flipper_length_mm, colour = pred_whole_lr,
             shape = pred_whole_lr_sh), data=whole_lr_df,
-            size=2.5, alpha = 1/2) + scale_shape_manual(values=c(1, 0))+
+            size=2.5, alpha = 1/2) + scale_shape_manual(values=c(2, 0))+
             labs(shape = "Predicted classes", color = "True classes") + 
             xlab("Flipper Length of a penguin (mm)") + 
             ylab("Body Mass of a penguin (g)") + 
@@ -413,7 +428,7 @@ data_plot
 ```
 
 
-### Problem 4
+## Problem 4
 
 ### a) 
 Answers for the questions are as follows:
@@ -505,8 +520,7 @@ print(EP)
 
 ### d) 
 
-The answers for the questions in problem d) are as follows. (i) True, (ii) Fal-
-se, (iii) True, (iv) False.  
+The answers for the questions in problem d) are as follows. (i) True, (ii) False, (iii) True, (iv) False.  
 
 
 
